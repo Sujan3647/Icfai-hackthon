@@ -4,7 +4,6 @@ import React from "react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import RegistrationForm from "@/components/registration-form"
-import { motion } from "framer-motion"
 import Image from "next/image"
 
 export default function RegisterPage() {

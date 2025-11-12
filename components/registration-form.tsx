@@ -53,11 +53,12 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
     terms: false,
   })
 
-  const updateField = (path: string, value: any) => {
+  const updateField = (path: string, value: string | boolean) => {
     setErrors([])
     const keys = path.split(".")
     setForm((prev) => {
       const updated = { ...prev }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let current: any = updated
       
       for (let i = 0; i < keys.length - 1; i++) {

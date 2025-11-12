@@ -45,7 +45,8 @@ export async function PATCH(
     const body = await request.json()
 
     // Remove id from update data if present
-    const { id: _, ...updateData } = body
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...updateData } = body
 
     await db
       .collection("registrations")

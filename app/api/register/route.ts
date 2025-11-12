@@ -25,6 +25,11 @@ const personSchema = z.object({
   message: "When member name is provided, all member fields are required"
 })
 
+const sanitize = (str: string | undefined): string => {
+  if (typeof str !== "string") return ""
+  return str.trim().replace(/[<>]/g, "")
+}
+
 const registrationSchema = z.object({
   teamName: z.string().min(1, "Team name is required"),
   domain: z.enum(["Blockchain", "AIML", "Open Innovation"]),
@@ -40,11 +45,6 @@ const registrationSchema = z.object({
   ideaDescription: z.string().min(1, "Idea description is required"),
   terms: z.boolean().refine((val) => val === true, "You must accept the terms"),
 })
-
-const sanitize = (str: any): string => {
-  if (typeof str !== "string") return ""
-  return str.trim().replace(/[<>]/g, "")
-}
 
 export async function POST(req: Request) {
   try {
@@ -103,9 +103,10 @@ export async function POST(req: Request) {
     await registrations.add(doc)
 
     return NextResponse.json({ success: true, regId })
-  } catch (err: any) {
+  } catch (err) {
     console.error("/api/register error:", err)
-    return NextResponse.json({ success: false, message: err?.message || "Server error" }, { status: 500 })
+    const errorMessage = err instanceof Error ? err.message : "Server error"
+    return NextResponse.json({ success: false, message: errorMessage }, { status: 500 })
   }
 }
 
