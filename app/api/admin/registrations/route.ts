@@ -12,9 +12,22 @@ export async function GET() {
       throw new Error(error.message)
     }
 
+    // Map snake_case to camelCase for frontend
+    const formattedRegistrations = registrations?.map(reg => ({
+      id: reg.id,
+      regId: reg.reg_id,
+      teamName: reg.team_name,
+      domain: reg.domain,
+      leader: reg.leader,
+      members: reg.members || [],
+      ideaDescription: reg.idea_description,
+      status: reg.status,
+      createdAt: reg.created_at
+    })) || []
+
     return NextResponse.json({
       success: true,
-      registrations
+      registrations: formattedRegistrations
     })
   } catch (error) {
     console.error("Error fetching registrations:", error)

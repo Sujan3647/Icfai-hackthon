@@ -42,9 +42,14 @@ export async function PATCH(
     const { id } = await params
     const body = await request.json()
 
-    // Remove id from update data if present
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id: _id, ...updateData } = body
+    // Map camelCase from frontend to snake_case for database
+    const updateData: Record<string, unknown> = {}
+    
+    if (body.teamName !== undefined) updateData.team_name = body.teamName
+    if (body.ideaDescription !== undefined) updateData.idea_description = body.ideaDescription
+    if (body.status !== undefined) updateData.status = body.status
+    if (body.leader !== undefined) updateData.leader = body.leader
+    if (body.members !== undefined) updateData.members = body.members
 
     const { error } = await supabase
       .from("registrations")

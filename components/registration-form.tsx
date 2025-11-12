@@ -558,6 +558,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
             exit={{ opacity: 0 }} 
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" 
             onClick={() => setSuccess(null)}
+            style={{}}
           >
             <motion.div 
               initial={{ scale: 0.5, opacity: 0, y: 50 }} 
@@ -565,6 +566,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
               exit={{ scale: 0.5, opacity: 0, y: 50 }} 
               transition={{ type: "spring", duration: 0.6, bounce: 0.4 }} 
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              style={{}}
             >
               <Card className="w-full max-w-md shadow-2xl border-2 border-green-200">
                 <CardHeader className="text-center pb-2">
@@ -573,6 +575,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ delay: 0.2, type: "spring", duration: 0.8 }}
                     className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"
+                    style={{}}
                   >
                     <CheckCircle2 className="w-12 h-12 text-green-600" />
                   </motion.div>
@@ -604,6 +607,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.8 }}
                     className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-5 text-center"
+                    style={{}}
                   >
                     <p className="text-sm text-gray-600 mb-2 font-medium">Your Registration ID</p>
                     <motion.p 
@@ -611,6 +615,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
                       animate={{ scale: [0.8, 1.1, 1] }}
                       transition={{ delay: 1, duration: 0.5 }}
                       className="text-3xl font-mono font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent break-all"
+                      style={{}}
                     >
                       {success.regId}
                     </motion.p>
@@ -621,6 +626,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.2 }}
                     className="bg-amber-50 border border-amber-200 rounded-lg p-3"
+                    style={{}}
                   >
                     <p className="text-sm text-amber-800">
                       📧 <span className="font-medium">Important:</span> Save this Registration ID! Check your email for confirmation details.
@@ -632,6 +638,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.4 }}
                     className="flex gap-3"
+                    style={{}}
                   >
                     <Button 
                       onClick={copyRegId} 
@@ -657,6 +664,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="fixed inset-0 pointer-events-none"
+              style={{}}
             >
               {[...Array(30)].map((_, i) => (
                 <motion.div

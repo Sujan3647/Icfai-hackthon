@@ -81,9 +81,14 @@ export async function POST(req: Request) {
       }))
 
     // Get current count to generate registration ID
-    const { count } = await supabase
+    const { count, error: countError } = await supabase
       .from('registrations')
       .select('*', { count: 'exact', head: true })
+    
+    if (countError) {
+      console.error("Supabase count error:", countError)
+      throw new Error(`Database error: ${countError.message}. Make sure you've run the SQL migration in Supabase.`)
+    }
     
     const regNum = (count || 0) + 1
     const regId = `H2H-2025-${String(regNum).padStart(4, "0")}`
@@ -105,7 +110,8 @@ export async function POST(req: Request) {
       .single()
 
     if (error) {
-      throw new Error(error.message)
+      console.error("Supabase insert error:", error)
+      throw new Error(`Database error: ${error.message}`)
     }
 
     return NextResponse.json({ success: true, regId })

@@ -24,6 +24,9 @@ CREATE INDEX IF NOT EXISTS idx_registrations_status ON registrations(status);
 -- Enable Row Level Security (RLS)
 ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policy if it exists, then create new one
+DROP POLICY IF EXISTS "Allow service role full access" ON registrations;
+
 -- Create policy to allow all operations with service role key
 -- (Your API routes will use the service role key)
 CREATE POLICY "Allow service role full access" ON registrations
