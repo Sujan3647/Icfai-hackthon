@@ -25,20 +25,18 @@ function initializeFirebase() {
   }
 }
 
-// Initialize Firebase
-initializeFirebase();
+// Export db with lazy initialization
+let _db: ReturnType<typeof getFirestore> | null = null;
 
-// Export db with a getter to ensure it's only called when needed
-export const getDb = () => {
-  if (!getApps().length) {
-    throw new Error("Firebase is not initialized. Please check your environment variables.");
-  }
-  return getFirestore();
-};
-
-// For backwards compatibility
 export const db = new Proxy({} as ReturnType<typeof getFirestore>, {
   get(target, prop) {
-    return getDb()[prop as keyof ReturnType<typeof getFirestore>];
+    if (!_db) {
+      initializeFirebase();
+      if (!getApps().length) {
+        throw new Error("Firebase is not initialized. Please check your environment variables.");
+      }
+      _db = getFirestore();
+    }
+    return _db[prop as keyof ReturnType<typeof getFirestore>];
   }
 });
