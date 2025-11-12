@@ -14,6 +14,9 @@ const nextConfig = {
     remotePatterns: [],
     unoptimized: false,
   },
+  outputFileTracingIncludes: {
+    '/api/**/*': ['./node_modules/**/*.wasm', './node_modules/**/*.node'],
+  },
 }
 
 module.exports = nextConfig
