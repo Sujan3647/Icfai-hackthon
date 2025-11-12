@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { db } from "@/lib/firebase"
+import { supabase } from "@/lib/supabase"
 
 export async function GET(
   request: NextRequest,
@@ -8,12 +8,13 @@ export async function GET(
   try {
     const { id } = await params
     
-    const doc = await db
-      .collection("registrations")
-      .doc(id)
-      .get()
+    const { data: registration, error } = await supabase
+      .from("registrations")
+      .select("*")
+      .eq("id", id)
+      .single()
 
-    if (!doc.exists) {
+    if (error || !registration) {
       return NextResponse.json(
         { success: false, error: "Registration not found" },
         { status: 404 }
@@ -22,10 +23,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      registration: {
-        id: doc.id,
-        ...doc.data()
-      }
+      registration
     })
   } catch (error) {
     console.error("Error fetching registration:", error)
@@ -48,13 +46,17 @@ export async function PATCH(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _id, ...updateData } = body
 
-    await db
-      .collection("registrations")
-      .doc(id)
+    const { error } = await supabase
+      .from("registrations")
       .update({
         ...updateData,
-        updatedAt: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
+      .eq("id", id)
+
+    if (error) {
+      throw new Error(error.message)
+    }
 
     return NextResponse.json({
       success: true,
@@ -76,10 +78,14 @@ export async function DELETE(
   try {
     const { id } = await params
     
-    await db
-      .collection("registrations")
-      .doc(id)
+    const { error } = await supabase
+      .from("registrations")
       .delete()
+      .eq("id", id)
+
+    if (error) {
+      throw new Error(error.message)
+    }
 
     return NextResponse.json({
       success: true,

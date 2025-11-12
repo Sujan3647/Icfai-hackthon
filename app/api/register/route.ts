@@ -1,4 +1,4 @@
-import { db } from "@/lib/firebase"
+import { supabase } from "@/lib/supabase"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
@@ -60,47 +60,53 @@ export async function POST(req: Request) {
     const data = validation.data
 
     // Sanitize all inputs
-    const sanitizedData = {
-      teamName: sanitize(data.teamName),
-      domain: data.domain,
-      leader: {
-        name: sanitize(data.leader.name),
-        id: sanitize(data.leader.id),
-        program: sanitize(data.leader.program),
-        year: sanitize(data.leader.year),
-        email: sanitize(data.leader.email),
-        phone: sanitize(data.leader.phone),
-      },
-      members: data.members
-        .filter((m) => m.name && m.name.trim())
-        .map((m) => ({
-          name: sanitize(m.name || ""),
-          id: sanitize(m.id || ""),
-          program: sanitize(m.program || ""),
-          year: sanitize(m.year || ""),
-          email: sanitize(m.email || ""),
-          phone: sanitize(m.phone || ""),
-        })),
-      ideaDescription: sanitize(data.ideaDescription),
-      status: "pending",
-      createdAt: new Date().toISOString(),
+    const sanitizedLeader = {
+      name: sanitize(data.leader.name),
+      id: sanitize(data.leader.id),
+      program: sanitize(data.leader.program),
+      year: sanitize(data.leader.year),
+      email: sanitize(data.leader.email),
+      phone: sanitize(data.leader.phone),
     }
 
-    // Get registrations collection
-    const registrations = db.collection("registrations")
+    const sanitizedMembers = data.members
+      .filter((m) => m.name && m.name.trim())
+      .map((m) => ({
+        name: sanitize(m.name || ""),
+        id: sanitize(m.id || ""),
+        program: sanitize(m.program || ""),
+        year: sanitize(m.year || ""),
+        email: sanitize(m.email || ""),
+        phone: sanitize(m.phone || ""),
+      }))
 
-    // Generate registration ID
-    const snapshot = await registrations.count().get()
-    const count = snapshot.data().count
-    const regNum = count + 1
+    // Get current count to generate registration ID
+    const { count } = await supabase
+      .from('registrations')
+      .select('*', { count: 'exact', head: true })
+    
+    const regNum = (count || 0) + 1
     const regId = `H2H-2025-${String(regNum).padStart(4, "0")}`
 
-    const doc = {
-      regId,
-      ...sanitizedData,
-    }
+    // Insert into Supabase
+    const { data: insertedData, error } = await supabase
+      .from('registrations')
+      .insert({
+        reg_id: regId,
+        team_name: sanitize(data.teamName),
+        domain: data.domain,
+        leader: sanitizedLeader,
+        members: sanitizedMembers,
+        idea_description: sanitize(data.ideaDescription),
+        status: "pending",
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single()
 
-    await registrations.add(doc)
+    if (error) {
+      throw new Error(error.message)
+    }
 
     return NextResponse.json({ success: true, regId })
   } catch (err) {

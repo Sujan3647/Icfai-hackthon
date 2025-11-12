@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/firebase"
+import { supabase } from "@/lib/supabase"
 
 export async function GET() {
   try {
-    const snapshot = await db
-      .collection("registrations")
-      .orderBy("createdAt", "desc")
-      .get()
+    const { data: registrations, error } = await supabase
+      .from("registrations")
+      .select("*")
+      .order("created_at", { ascending: false })
 
-    const registrations = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
+    if (error) {
+      throw new Error(error.message)
+    }
 
     return NextResponse.json({
       success: true,
