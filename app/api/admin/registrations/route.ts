@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 
+// Use Edge Runtime to avoid serverless function size limits
+export const runtime = 'edge'
+
 export async function GET() {
   try {
     const { data: registrations, error } = await supabase

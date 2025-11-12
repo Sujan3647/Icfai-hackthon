@@ -2,6 +2,9 @@ import { supabase } from "@/lib/supabase"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
+// Use Edge Runtime to avoid serverless function size limits
+export const runtime = 'edge'
+
 const personSchema = z.object({
   name: z.string().min(1).optional().or(z.literal("")),
   id: z.string().optional().or(z.literal("")),
