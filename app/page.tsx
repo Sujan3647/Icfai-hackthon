@@ -305,7 +305,7 @@ export default function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      <span className="text-sm">Your Campus</span>
+                      <span className="text-sm">ICFAI University Tripura</span>
                     </div>
                   </div>
                 </div>
@@ -368,7 +368,7 @@ export default function Home() {
                       Final Hiring Event
                     </h3>
                     <p className="text-sm sm:text-base text-gray-600 font-semibold">
-                      5th December 2025
+                      Offline
                     </p>
                   </div>
                   
