@@ -2,8 +2,8 @@ import { supabase } from "@/lib/supabase"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-// Use Node.js runtime for external API calls
-export const runtime = 'nodejs'
+// Use Edge runtime for better performance
+export const runtime = 'edge'
 
 const personSchema = z.object({
   name: z.string().min(1).optional().or(z.literal("")),
@@ -286,28 +286,7 @@ export async function POST(req: Request) {
 
     const data = validation.data
 
-    // Verify leader email actually exists
-    const leaderEmailCheck = await verifyEmailExists(data.leader.email)
-    if (!leaderEmailCheck.valid) {
-      return NextResponse.json({ 
-        success: false, 
-        message: `Leader email verification failed: ${leaderEmailCheck.message}` 
-      }, { status: 400 })
-    }
-
-    // Verify member emails
-    for (let i = 0; i < data.members.length; i++) {
-      const member = data.members[i]
-      if (member.email && member.email.trim()) {
-        const memberEmailCheck = await verifyEmailExists(member.email)
-        if (!memberEmailCheck.valid) {
-          return NextResponse.json({ 
-            success: false, 
-            message: `Member ${i + 1} email verification failed: ${memberEmailCheck.message}` 
-          }, { status: 400 })
-        }
-      }
-    }
+    // Email validation removed - accepting all emails
 
     // Sanitize all inputs
     const sanitizedLeader = {

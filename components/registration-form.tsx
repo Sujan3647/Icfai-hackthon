@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence, type MotionProps } from "framer-motion"
 import { Copy, CheckCircle2, Loader2, User, Users, ChevronRight, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -36,6 +37,7 @@ type RegistrationFormProps = {
 }
 
 export default function RegistrationForm({ onSuccess }: RegistrationFormProps = {}) {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState<null | { regId: string }>(null)
@@ -768,10 +770,10 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
                       {copied ? "✓ Copied!" : "Copy ID"}
                     </Button>
                     <Button 
-                      onClick={() => setSuccess(null)} 
+                      onClick={() => router.push('/')} 
                       className="flex-1 h-12 bg-gradient-to-r from-[#0b2b54] to-[#1e5a9e] hover:from-[#1e5a9e] hover:to-[#0b2b54] shadow-lg"
                     >
-                      Close
+                      Back to Home
                     </Button>
                   </motion.div>
                 </CardContent>
