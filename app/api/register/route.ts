@@ -44,15 +44,28 @@ const verifyEmailExists = async (email: string): Promise<{ valid: boolean; messa
 
     const emailLocalPart = email.split('@')[0].toLowerCase()
     
-    // Block obviously fake email patterns
+    // EXPANDED - Block ALL fake email patterns
     const fakePatterns = [
+      // Common fake prefixes
       /^test/i, /^fake/i, /^dummy/i, /^sample/i, /^demo/i,
       /^asdf/i, /^qwer/i, /^zxcv/i, /^1234/i, /^0000/i,
       /^temp/i, /^trash/i, /^spam/i, /^junk/i, /^random/i,
       /^xxx/i, /^aaa/i, /^bbb/i, /^abc123/i, /^user/i,
       /^admin$/i, /^info$/i, /^noreply$/i, /^no-reply$/i,
+      // Keyboard patterns
+      /qwert/i, /asdfg/i, /zxcvb/i, /poiuy/i, /lkjhg/i,
+      // Sequential numbers
+      /12345/i, /54321/i, /11111/i, /00000/i, /99999/i,
+      // Common test patterns
+      /testuser/i, /fakeuser/i, /tempuser/i, /demouser/i,
+      /example/i, /testmail/i, /fakemail/i,
+      // Repeated patterns
       /^(a+)$/, /^(1+)$/, /^[0-9]+$/, // Only letters or only numbers
-      /^(.)\1{4,}/, // Same character repeated 5+ times (e.g., aaaaa)
+      /^(.)\1{4,}/, // Same character repeated 5+ times
+      /^(..)\1{2,}/, // Two characters repeated 3+ times (e.g., ababab)
+      // Random gibberish patterns
+      /^[a-z]{15,}$/i, // Very long single word without numbers
+      /^[0-9]{5,}[a-z]*$/i, // Starts with 5+ numbers
     ]
     
     // Check if email matches any fake pattern
@@ -74,34 +87,39 @@ const verifyEmailExists = async (email: string): Promise<{ valid: boolean; messa
     }
     
     // Block sequential patterns like abc, 123
-    if (/abc|123|xyz|qwe|zxc/.test(emailLocalPart)) {
+    if (/abc|123|xyz|qwe|zxc|567|890|mno|pqr|stu|vwx/.test(emailLocalPart)) {
       return { 
         valid: false, 
         message: "This email contains suspicious patterns. Please use your real email address." 
       }
     }
 
-    // Abstract API Email Validation - Free tier: 100/month
-    // API Key hardcoded (free tier, no credit card required)
+    // Abstract API Email Validation - MANDATORY CHECK
     const abstractApiKey = '99b0f19622bc44008df7b05ebde6da28'
     
     try {
       const response = await fetch(
-        `https://emailvalidation.abstractapi.com/v1/?api_key=${abstractApiKey}&email=${encodeURIComponent(email)}`
+        `https://emailvalidation.abstractapi.com/v1/?api_key=${abstractApiKey}&email=${encodeURIComponent(email)}`,
+        { 
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        }
       )
       
       if (response.ok) {
         const data = await response.json()
         
-        // Check if email deliverability is valid
-        // deliverability: "DELIVERABLE", "UNDELIVERABLE", "RISKY", "UNKNOWN"
-        if (data.deliverability === "UNDELIVERABLE") {
+        console.log('Email verification response:', data) // Debug log
+        
+        // STRICT: Reject if not DELIVERABLE
+        if (data.deliverability !== "DELIVERABLE") {
           return {
             valid: false,
-            message: "This email address does not exist or cannot receive emails. Please check and try again."
+            message: "This email address cannot be verified or does not exist. Please use a valid, active email address."
           }
         }
         
+        // Block disposable emails
         if (data.is_disposable_email?.value === true) {
           return {
             valid: false,
@@ -109,22 +127,61 @@ const verifyEmailExists = async (email: string): Promise<{ valid: boolean; messa
           }
         }
         
-        if (data.is_free_email?.value === false && data.deliverability === "RISKY") {
+        // Block if it's not a valid format
+        if (data.is_valid_format?.value === false) {
           return {
             valid: false,
-            message: "This email appears to be risky. Please use a trusted email provider."
+            message: "Invalid email format. Please check your email address."
           }
+        }
+        
+        // Block catch-all emails (often used for fake registrations)
+        if (data.is_catchall_email?.value === true) {
+          return {
+            valid: false,
+            message: "Catch-all email addresses are not allowed. Please use a specific email address."
+          }
+        }
+        
+        // Block if MX records don't exist
+        if (data.is_mx_found?.value === false) {
+          return {
+            valid: false,
+            message: "Email domain does not have valid mail servers. Please use a valid email provider."
+          }
+        }
+        
+        // Block if SMTP check fails
+        if (data.is_smtp_valid?.value === false) {
+          return {
+          valid: false,
+            message: "Email address failed SMTP verification. This email may not exist."
+          }
+        }
+        
+        // All checks passed
+        return { valid: true, message: "Email verified successfully" }
+      } else {
+        // API call failed - REJECT for security
+        return {
+          valid: false,
+          message: "Unable to verify email at this time. Please try again later or contact support."
         }
       }
     } catch (apiError) {
-      // If API fails, continue with pattern-based validation
-      console.warn('Email verification API error:', apiError)
+      // API error - REJECT for security (don't allow through)
+      console.error('Email verification API error:', apiError)
+      return {
+        valid: false,
+        message: "Email verification service unavailable. Please try again in a few minutes."
+      }
     }
-
-    return { valid: true, message: "Email verified successfully" }
   } catch (error) {
     console.error('Email verification error:', error)
-    return { valid: true, message: "Email passed basic validation" }
+    return { 
+      valid: false, 
+      message: "Email validation failed. Please ensure you're using a valid email address." 
+    }
   }
 }
 
