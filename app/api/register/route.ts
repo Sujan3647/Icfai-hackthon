@@ -2,8 +2,8 @@ import { supabase } from "@/lib/supabase"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-// Use Edge runtime for better performance
-export const runtime = 'edge'
+// Use Node.js runtime for external API calls
+export const runtime = 'nodejs'
 
 const personSchema = z.object({
   name: z.string().min(1).optional().or(z.literal("")),
@@ -33,7 +33,8 @@ const sanitize = (str: string | undefined): string => {
   return str.trim().replace(/[<>]/g, "")
 }
 
-// Verify if email actually exists using regex patterns for common fake emails
+// Verify if email actually exists using Abstract API (100 free/month)
+// Sign up at: https://app.abstractapi.com/api/email-validation/tester
 const verifyEmailExists = async (email: string): Promise<{ valid: boolean; message: string }> => {
   try {
     // First, do basic domain validation
@@ -80,7 +81,47 @@ const verifyEmailExists = async (email: string): Promise<{ valid: boolean; messa
       }
     }
 
-    return { valid: true, message: "Email passed validation" }
+    // Abstract API Email Validation - Free tier: 100/month
+    // API Key hardcoded (free tier, no credit card required)
+    const abstractApiKey = '99b0f19622bc44008df7b05ebde6da28'
+    
+    try {
+      const response = await fetch(
+        `https://emailvalidation.abstractapi.com/v1/?api_key=${abstractApiKey}&email=${encodeURIComponent(email)}`
+      )
+      
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Check if email deliverability is valid
+        // deliverability: "DELIVERABLE", "UNDELIVERABLE", "RISKY", "UNKNOWN"
+        if (data.deliverability === "UNDELIVERABLE") {
+          return {
+            valid: false,
+            message: "This email address does not exist or cannot receive emails. Please check and try again."
+          }
+        }
+        
+        if (data.is_disposable_email?.value === true) {
+          return {
+            valid: false,
+            message: "Disposable email addresses are not allowed. Please use a permanent email address."
+          }
+        }
+        
+        if (data.is_free_email?.value === false && data.deliverability === "RISKY") {
+          return {
+            valid: false,
+            message: "This email appears to be risky. Please use a trusted email provider."
+          }
+        }
+      }
+    } catch (apiError) {
+      // If API fails, continue with pattern-based validation
+      console.warn('Email verification API error:', apiError)
+    }
+
+    return { valid: true, message: "Email verified successfully" }
   } catch (error) {
     console.error('Email verification error:', error)
     return { valid: true, message: "Email passed basic validation" }
