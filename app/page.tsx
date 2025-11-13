@@ -226,6 +226,186 @@ export default function Home() {
           </div>
         </section>
 
+        {/* About Hack-to-Hire Section */}
+        <section className="py-12 sm:py-16 md:py-20 bg-white relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px] opacity-50" />
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="text-center mb-10 sm:mb-12 md:mb-16"
+            >
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 sm:mb-5"
+                style={{ 
+                  background: "linear-gradient(135deg, #0b2b54 0%, #1e5a9e 50%, #0b2b54 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text"
+                }}
+              >
+                About Hack-to-Hire
+              </h2>
+              <motion.div 
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                className="h-1 w-24 mx-auto bg-gradient-to-r from-[#0b2b54] via-[#1e5a9e] to-[#0b2b54] rounded-full"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="max-w-4xl mx-auto mb-12 sm:mb-16"
+            >
+              <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed text-center px-4">
+                <strong className="text-[#0b2b54]">Hack-to-Hire</strong> is <strong>India's first nationwide skill-to-hire hackathon</strong>, designed to bridge the gap between academia and industry through a comprehensive three-stage process:
+              </p>
+            </motion.div>
+
+            {/* Three Stages */}
+            <div className="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+              {/* Stage 1 */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                className="group"
+              >
+                <div className="relative h-full bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-blue-100 hover:border-blue-300">
+                  {/* Stage Number Badge */}
+                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-[#0b2b54] to-[#1e5a9e] rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-white text-2xl font-black">1</span>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-[#0b2b54] mb-2">
+                      Ideathon
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-600 font-semibold">
+                      (Campus Round)
+                    </p>
+                  </div>
+                  
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                    Conducted in collaboration with your university, this <strong>on-campus event</strong> engages students in <strong>ideation, innovation, and teamwork</strong>.
+                  </p>
+                  
+                  <div className="mt-6 pt-6 border-t border-blue-200">
+                    <div className="flex items-center gap-2 text-[#0b2b54] font-semibold">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-sm">Your Campus</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Stage 2 */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="group"
+              >
+                <div className="relative h-full bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-indigo-100 hover:border-indigo-300">
+                  {/* Stage Number Badge */}
+                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-[#1e5a9e] to-[#0b2b54] rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-white text-2xl font-black">2</span>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-[#0b2b54] mb-2">
+                      National Hackathon
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-600 font-semibold">
+                      (Prototype Development)
+                    </p>
+                  </div>
+                  
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                    An <strong>online prototype development round</strong> managed and organized by <strong>Trikaya</strong> and <strong>BeetleX</strong>.
+                  </p>
+                  
+                  <div className="mt-6 pt-6 border-t border-indigo-200">
+                    <div className="flex items-center gap-2 text-[#0b2b54] font-semibold">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                      </svg>
+                      <span className="text-sm">Online</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Stage 3 */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.7, duration: 0.8 }}
+                className="group"
+              >
+                <div className="relative h-full bg-gradient-to-br from-purple-50 to-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-purple-100 hover:border-purple-300">
+                  {/* Stage Number Badge */}
+                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-white text-2xl font-black">3</span>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-[#0b2b54] mb-2">
+                      Final Hiring Event
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-600 font-semibold">
+                      5th December 2025
+                    </p>
+                  </div>
+                  
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3">
+                    <strong>In-person interviews</strong> and networking with <strong>hiring partners</strong> — <span className="text-purple-700 font-bold">travel covered for finalists</span>.
+                  </p>
+                  
+                  <div className="mt-6 pt-6 border-t border-purple-200">
+                    <div className="flex items-center gap-2 text-[#0b2b54] font-semibold">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-sm">Bengaluru</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Call to Action */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.9, duration: 0.8 }}
+              className="text-center mt-12 sm:mt-16"
+            >
+              <div className="inline-block bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl px-6 sm:px-8 py-4 sm:py-5 border-2 border-blue-200">
+                <p className="text-base sm:text-lg md:text-xl text-gray-800 font-semibold">
+                  🚀 Start your journey today — <strong className="text-[#0b2b54]">Register for Stage 1: Ideathon!</strong>
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Event Details Section */}
         <EventDetailsSection />
       </main>
