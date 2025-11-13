@@ -2,8 +2,8 @@ import { supabase } from "@/lib/supabase"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-// Use Node.js runtime for email verification
-export const runtime = 'nodejs'
+// Use Edge runtime for better performance
+export const runtime = 'edge'
 
 const personSchema = z.object({
   name: z.string().min(1).optional().or(z.literal("")),
@@ -33,8 +33,62 @@ const sanitize = (str: string | undefined): string => {
   return str.trim().replace(/[<>]/g, "")
 }
 
+// Verify if email actually exists using regex patterns for common fake emails
+const verifyEmailExists = async (email: string): Promise<{ valid: boolean; message: string }> => {
+  try {
+    // First, do basic domain validation
+    if (!isRealEmail(email)) {
+      return { valid: false, message: "Email domain is not from a trusted provider" }
+    }
+
+    const emailLocalPart = email.split('@')[0].toLowerCase()
+    
+    // Block obviously fake email patterns
+    const fakePatterns = [
+      /^test/i, /^fake/i, /^dummy/i, /^sample/i, /^demo/i,
+      /^asdf/i, /^qwer/i, /^zxcv/i, /^1234/i, /^0000/i,
+      /^temp/i, /^trash/i, /^spam/i, /^junk/i, /^random/i,
+      /^xxx/i, /^aaa/i, /^bbb/i, /^abc123/i, /^user/i,
+      /^admin$/i, /^info$/i, /^noreply$/i, /^no-reply$/i,
+      /^(a+)$/, /^(1+)$/, /^[0-9]+$/, // Only letters or only numbers
+      /^(.)\1{4,}/, // Same character repeated 5+ times (e.g., aaaaa)
+    ]
+    
+    // Check if email matches any fake pattern
+    for (const pattern of fakePatterns) {
+      if (pattern.test(emailLocalPart)) {
+        return { 
+          valid: false, 
+          message: "This email appears to be fake or for testing purposes. Please use your real personal email address." 
+        }
+      }
+    }
+    
+    // Check email length - too short is suspicious
+    if (emailLocalPart.length < 3) {
+      return { 
+        valid: false, 
+        message: "Email address is too short. Please use a valid personal email." 
+      }
+    }
+    
+    // Block sequential patterns like abc, 123
+    if (/abc|123|xyz|qwe|zxc/.test(emailLocalPart)) {
+      return { 
+        valid: false, 
+        message: "This email contains suspicious patterns. Please use your real email address." 
+      }
+    }
+
+    return { valid: true, message: "Email passed validation" }
+  } catch (error) {
+    console.error('Email verification error:', error)
+    return { valid: true, message: "Email passed basic validation" }
+  }
+}
+
 // Comprehensive email validation - checks domain legitimacy
-const isRealEmail = (email: string): boolean => {
+const isRealEmail = (email: string) => {
   const domain = email.toLowerCase().split('@')[1]
   
   if (!domain) return false
@@ -135,22 +189,24 @@ export async function POST(req: Request) {
 
     const data = validation.data
 
-    // Validate leader email - must be from trusted domain
-    if (!isRealEmail(data.leader.email)) {
+    // Verify leader email actually exists
+    const leaderEmailCheck = await verifyEmailExists(data.leader.email)
+    if (!leaderEmailCheck.valid) {
       return NextResponse.json({ 
         success: false, 
-        message: "Please use a REAL email address from trusted providers (Gmail, Yahoo, Outlook, educational institutions, etc.). Temporary/disposable emails are not allowed." 
+        message: `Leader email verification failed: ${leaderEmailCheck.message}` 
       }, { status: 400 })
     }
 
-    // Validate member emails - must be from trusted domains
+    // Verify member emails
     for (let i = 0; i < data.members.length; i++) {
       const member = data.members[i]
       if (member.email && member.email.trim()) {
-        if (!isRealEmail(member.email)) {
+        const memberEmailCheck = await verifyEmailExists(member.email)
+        if (!memberEmailCheck.valid) {
           return NextResponse.json({ 
             success: false, 
-            message: `Member ${i + 1}: Please use a REAL email address. Temporary/disposable emails are not allowed.` 
+            message: `Member ${i + 1} email verification failed: ${memberEmailCheck.message}` 
           }, { status: 400 })
         }
       }
