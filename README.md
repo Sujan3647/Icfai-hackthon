@@ -262,7 +262,7 @@ Edit `/components/event-details-section.tsx`:
 const details = [
   { icon: Calendar, label: "Date", value: "17th November 2025" },
   { icon: Clock, label: "Time", value: "10:00 AM onwards" },
-  { icon: MapPin, label: "Venue", value: "Civil Auditorium" },
+  { icon: MapPin, label: "Venue", value: "Civil Lab Auditorium" },
   { icon: Phone, label: "Contact", value: "+91 9077255903" },
 ]
 ```

@@ -208,7 +208,7 @@ export default function Home() {
                   className="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed mb-5 sm:mb-6 max-w-2xl mx-auto px-4"
                   style={{ transform: "translateZ(10px)" }}
                 >
-                  Join us on <strong className="text-[#0b2b54]">17th November 2025</strong> at <strong className="text-[#0b2b54]">Civil Auditorium</strong>. 
+                  Join us on <strong className="text-[#0b2b54]">17th November 2025</strong> at <strong className="text-[#0b2b54]">Civil Lab Auditorium</strong>. 
                   <br className="hidden sm:block" />
                   Register your team and compete in <strong>Blockchain</strong>, <strong>AIML</strong>, or <strong>Open Innovation</strong> domains!
                 </motion.p>
