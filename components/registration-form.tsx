@@ -82,6 +82,22 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
     
     // Stricter email validation - must have proper domain
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    
+    // List of fake/disposable email domains to block
+    const blockedDomains = [
+      'tempmail.com', 'throwaway.email', '10minutemail.com', 'guerrillamail.com',
+      'mailinator.com', 'maildrop.cc', 'temp-mail.org', 'fakeinbox.com',
+      'trashmail.com', 'yopmail.com', 'getnada.com', 'sharklasers.com',
+      'guerrillamailblock.com', 'spam4.me', 'mintemail.com', 'emailondeck.com',
+      'test.com', 'example.com', 'fake.com', 'dummy.com', 'xxx.com'
+    ]
+    
+    // Function to check if email domain is blocked
+    const isBlockedEmail = (email: string): boolean => {
+      const domain = email.toLowerCase().split('@')[1]
+      return blockedDomains.some(blocked => domain === blocked || domain.endsWith('.' + blocked))
+    }
+    
     // Phone validation - must be exactly 10 digits for Indian numbers
     const phoneRegex = /^[6-9][0-9]{9}$/
     
@@ -92,6 +108,7 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
     if (!form.leader.year.trim()) newErrors.push("Leader year is required")
     if (!form.leader.email.trim()) newErrors.push("Leader email is required")
     else if (!emailRegex.test(form.leader.email)) newErrors.push("Please enter a valid email address (e.g., name@example.com)")
+    else if (isBlockedEmail(form.leader.email)) newErrors.push("Please use a valid personal or institutional email address")
     if (!form.leader.phone.trim()) newErrors.push("Leader phone is required")
     else if (!phoneRegex.test(form.leader.phone.replace(/[\s\-()]/g, ""))) newErrors.push("Please enter a valid 10-digit Indian mobile number")
     if (!form.ideaDescription.trim()) newErrors.push("Idea description is required")
@@ -106,6 +123,22 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
     
     // Stricter email validation - must have proper domain
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    
+    // List of fake/disposable email domains to block
+    const blockedDomains = [
+      'tempmail.com', 'throwaway.email', '10minutemail.com', 'guerrillamail.com',
+      'mailinator.com', 'maildrop.cc', 'temp-mail.org', 'fakeinbox.com',
+      'trashmail.com', 'yopmail.com', 'getnada.com', 'sharklasers.com',
+      'guerrillamailblock.com', 'spam4.me', 'mintemail.com', 'emailondeck.com',
+      'test.com', 'example.com', 'fake.com', 'dummy.com', 'xxx.com'
+    ]
+    
+    // Function to check if email domain is blocked
+    const isBlockedEmail = (email: string): boolean => {
+      const domain = email.toLowerCase().split('@')[1]
+      return blockedDomains.some(blocked => domain === blocked || domain.endsWith('.' + blocked))
+    }
+    
     // Phone validation - must be exactly 10 digits for Indian numbers
     const phoneRegex = /^[6-9][0-9]{9}$/
     
@@ -121,6 +154,8 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
         if (!form.leader.email.trim()) newErrors.push("Leader email is required")
         else if (!emailRegex.test(form.leader.email)) 
           newErrors.push("Please enter a valid email address (e.g., name@example.com)")
+        else if (isBlockedEmail(form.leader.email))
+          newErrors.push("Please use a valid personal or institutional email address")
         if (!form.leader.phone.trim()) newErrors.push("Leader phone is required")
         else if (!phoneRegex.test(form.leader.phone.replace(/[\s\-()]/g, ""))) 
           newErrors.push("Please enter a valid 10-digit Indian mobile number")
@@ -138,6 +173,8 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
           if (!member.email.trim()) newErrors.push(`Member ${memberIndex + 1} Email is required`)
           else if (!emailRegex.test(member.email)) 
             newErrors.push(`Member ${memberIndex + 1}: Please enter a valid email address`)
+          else if (isBlockedEmail(member.email))
+            newErrors.push(`Member ${memberIndex + 1}: Please use a valid personal or institutional email`)
           if (!member.phone.trim()) newErrors.push(`Member ${memberIndex + 1} Phone is required`)
           else if (!phoneRegex.test(member.phone.replace(/[\s\-()]/g, ""))) 
             newErrors.push(`Member ${memberIndex + 1}: Please enter a valid 10-digit mobile number`)
