@@ -123,7 +123,7 @@ export default function Home() {
                   Organized by <span className="font-bold text-[#0b2b54]">Startup Incubation Center, IIC, ICFAI University Tripura</span>
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500">
-                  in collaboration with <span className="font-semibold text-[#1e5a9e]">Trikaya</span> and <span className="font-semibold text-[#1e5a9e]">BeetleX</span>
+                  in collaboration with <a href="https://www.trikaya.io/" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1e5a9e] hover:text-[#0b2b54] underline hover:no-underline transition-colors duration-200">Trikaya</a> and <span className="font-semibold text-[#1e5a9e]">BeetleX</span>
                 </p>
               </motion.div>
             </motion.div>
@@ -296,7 +296,7 @@ export default function Home() {
                   </div>
                   
                   <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                    Conducted in collaboration with your university, this <strong>on-campus event</strong> engages students in <strong>ideation, innovation, and teamwork</strong>.
+                    Conducted in collaboration with ICFAI University Tripura, this <strong>on-campus event</strong> engages students in <strong>ideation, innovation, and teamwork</strong>.
                   </p>
                   
                   <div className="mt-6 pt-6 border-t border-blue-200">
@@ -335,7 +335,7 @@ export default function Home() {
                   </div>
                   
                   <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                    An <strong>online prototype development round</strong> managed and organized by <strong>Trikaya</strong> and <strong>BeetleX</strong>.
+                    An <strong>online prototype development round</strong> managed and organized by <a href="https://www.trikaya.io/" target="_blank" rel="noopener noreferrer" className="font-bold text-[#0b2b54] hover:text-[#1e5a9e] underline hover:no-underline transition-colors duration-200">Trikaya</a> and <strong>BeetleX</strong>.
                   </p>
                   
                   <div className="mt-6 pt-6 border-t border-indigo-200">
@@ -428,7 +428,7 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="text-xs sm:text-sm mb-3"
           >
-            In collaboration with <strong>Trikaya</strong> & <strong>BeetleX</strong>
+            In collaboration with <a href="https://www.trikaya.io/" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-blue-200 underline hover:no-underline transition-colors duration-200">Trikaya</a> & <strong>BeetleX</strong>
           </motion.p>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
