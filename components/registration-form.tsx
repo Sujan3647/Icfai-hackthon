@@ -80,15 +80,20 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
   const validateForm = (): boolean => {
     const newErrors: string[] = []
     
+    // Stricter email validation - must have proper domain
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    // Phone validation - must be exactly 10 digits for Indian numbers
+    const phoneRegex = /^[6-9][0-9]{9}$/
+    
     if (!form.teamName.trim()) newErrors.push("Team name is required")
     if (!form.leader.name.trim()) newErrors.push("Leader name is required")
     if (!form.leader.id.trim()) newErrors.push("Leader student ID is required")
     if (!form.leader.program.trim()) newErrors.push("Leader program is required")
     if (!form.leader.year.trim()) newErrors.push("Leader year is required")
     if (!form.leader.email.trim()) newErrors.push("Leader email is required")
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.leader.email)) newErrors.push("Invalid leader email format")
+    else if (!emailRegex.test(form.leader.email)) newErrors.push("Please enter a valid email address (e.g., name@example.com)")
     if (!form.leader.phone.trim()) newErrors.push("Leader phone is required")
-    if (!/^\+?[0-9]{10,15}$/.test(form.leader.phone.replace(/[\s\-()]/g, ""))) newErrors.push("Invalid phone format")
+    else if (!phoneRegex.test(form.leader.phone.replace(/[\s\-()]/g, ""))) newErrors.push("Please enter a valid 10-digit Indian mobile number")
     if (!form.ideaDescription.trim()) newErrors.push("Idea description is required")
     if (!form.terms) newErrors.push("You must accept the terms & conditions")
     
@@ -98,6 +103,11 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
 
   const validateStep = (step: number): boolean => {
     const newErrors: string[] = []
+    
+    // Stricter email validation - must have proper domain
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    // Phone validation - must be exactly 10 digits for Indian numbers
+    const phoneRegex = /^[6-9][0-9]{9}$/
     
     switch (step) {
       case 1: // Team Details
@@ -109,11 +119,11 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
         if (!form.leader.program.trim()) newErrors.push("Leader program is required")
         if (!form.leader.year.trim()) newErrors.push("Leader year is required")
         if (!form.leader.email.trim()) newErrors.push("Leader email is required")
-        if (form.leader.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.leader.email)) 
-          newErrors.push("Invalid email format")
+        else if (!emailRegex.test(form.leader.email)) 
+          newErrors.push("Please enter a valid email address (e.g., name@example.com)")
         if (!form.leader.phone.trim()) newErrors.push("Leader phone is required")
-        if (form.leader.phone && !/^\+?[0-9]{10,15}$/.test(form.leader.phone.replace(/[\s\-()]/g, ""))) 
-          newErrors.push("Invalid phone format")
+        else if (!phoneRegex.test(form.leader.phone.replace(/[\s\-()]/g, ""))) 
+          newErrors.push("Please enter a valid 10-digit Indian mobile number")
         break
       case 3: // Member 1
       case 4: // Member 2
@@ -126,11 +136,11 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
           if (!member.program.trim()) newErrors.push(`Member ${memberIndex + 1} Program is required`)
           if (!member.year.trim()) newErrors.push(`Member ${memberIndex + 1} Year is required`)
           if (!member.email.trim()) newErrors.push(`Member ${memberIndex + 1} Email is required`)
-          if (member.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)) 
-            newErrors.push(`Member ${memberIndex + 1} Invalid email format`)
+          else if (!emailRegex.test(member.email)) 
+            newErrors.push(`Member ${memberIndex + 1}: Please enter a valid email address`)
           if (!member.phone.trim()) newErrors.push(`Member ${memberIndex + 1} Phone is required`)
-          if (member.phone && !/^\+?[0-9]{10,15}$/.test(member.phone.replace(/[\s\-()]/g, ""))) 
-            newErrors.push(`Member ${memberIndex + 1} Invalid phone format`)
+          else if (!phoneRegex.test(member.phone.replace(/[\s\-()]/g, ""))) 
+            newErrors.push(`Member ${memberIndex + 1}: Please enter a valid 10-digit mobile number`)
         }
         break
       case 6: // Idea Description
@@ -324,7 +334,17 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="leaderPhone">Phone <span className="text-red-500">*</span></Label>
-                        <Input id="leaderPhone" type="tel" placeholder="+91 1234567890" value={form.leader.phone} onChange={(e) => updateField("leader.phone", e.target.value)} required />
+                        <Input 
+                          id="leaderPhone" 
+                          type="tel" 
+                          placeholder="10-digit mobile (e.g., 9876543210)" 
+                          value={form.leader.phone} 
+                          onChange={(e) => updateField("leader.phone", e.target.value.replace(/[^0-9]/g, ''))}
+                          pattern="[6-9][0-9]{9}"
+                          maxLength={10}
+                          required 
+                        />
+                        <p className="text-xs text-gray-500">Enter 10-digit Indian mobile number</p>
                       </div>
                     </div>
                   </CardContent>
@@ -382,13 +402,27 @@ export default function RegistrationForm({ onSuccess }: RegistrationFormProps = 
                           <Label htmlFor={`member${idx}Email`}>
                             Email {form.members[idx].name.trim() && <span className="text-red-500">*</span>}
                           </Label>
-                          <Input id={`member${idx}Email`} type="email" placeholder="Email" value={form.members[idx].email} onChange={(e) => updateField(`members[${idx}].email`, e.target.value)} />
+                          <Input 
+                            id={`member${idx}Email`} 
+                            type="email" 
+                            placeholder="email@example.com" 
+                            value={form.members[idx].email} 
+                            onChange={(e) => updateField(`members[${idx}].email`, e.target.value)} 
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor={`member${idx}Phone`}>
                             Phone {form.members[idx].name.trim() && <span className="text-red-500">*</span>}
                           </Label>
-                          <Input id={`member${idx}Phone`} type="tel" placeholder="Phone" value={form.members[idx].phone} onChange={(e) => updateField(`members[${idx}].phone`, e.target.value)} />
+                          <Input 
+                            id={`member${idx}Phone`} 
+                            type="tel" 
+                            placeholder="10-digit mobile" 
+                            value={form.members[idx].phone} 
+                            onChange={(e) => updateField(`members[${idx}].phone`, e.target.value.replace(/[^0-9]/g, ''))}
+                            pattern="[6-9][0-9]{9}"
+                            maxLength={10}
+                          />
                         </div>
                       </div>
                     </CardContent>
