@@ -2,8 +2,8 @@ import { supabase } from "@/lib/supabase"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-// Use Edge Runtime to avoid serverless function size limits
-export const runtime = 'edge'
+// Use Node.js runtime for email verification
+export const runtime = 'nodejs'
 
 const personSchema = z.object({
   name: z.string().min(1).optional().or(z.literal("")),
@@ -33,44 +33,77 @@ const sanitize = (str: string | undefined): string => {
   return str.trim().replace(/[<>]/g, "")
 }
 
-// Function to validate if email domain is legitimate
-const isValidEmailDomain = (email: string): boolean => {
+// Comprehensive email validation - checks domain legitimacy
+const isRealEmail = (email: string): boolean => {
   const domain = email.toLowerCase().split('@')[1]
   
-  // List of fake/disposable email domains to block
+  if (!domain) return false
+  
+  // Extensive list of fake/disposable/temporary email domains
   const blockedDomains = [
-    'tempmail.com', 'throwaway.email', '10minutemail.com', 'guerrillamail.com',
-    'mailinator.com', 'maildrop.cc', 'temp-mail.org', 'fakeinbox.com',
-    'trashmail.com', 'yopmail.com', 'getnada.com', 'sharklasers.com',
-    'guerrillamailblock.com', 'spam4.me', 'mintemail.com', 'emailondeck.com',
-    'test.com', 'example.com', 'fake.com', 'dummy.com', 'xxx.com', 'sample.com'
+    // Disposable email services
+    'tempmail.com', 'temp-mail.org', 'temp-mail.io', 'temp-mail.de',
+    'throwaway.email', '10minutemail.com', '10minutemail.net',
+    'guerrillamail.com', 'guerrillamailblock.com', 'guerrillamail.net',
+    'mailinator.com', 'mailinator2.com', 'mailinator.net',
+    'maildrop.cc', 'maildrop.cf', 'maildrop.ga', 'maildrop.gq', 'maildrop.ml',
+    'fakeinbox.com', 'fakeinbox.net', 'fake-mail.com', 'fakemail.net',
+    'trashmail.com', 'trash-mail.com', 'trashmail.net', 'trash2.com',
+    'yopmail.com', 'yopmail.net', 'yopmail.fr',
+    'getnada.com', 'sharklasers.com', 'spamgourmet.com',
+    'spam4.me', 'mintemail.com', 'emailondeck.com',
+    'tempinbox.com', 'tmailor.com', 'tmailinator.com',
+    'mytrashmail.com', 'dispostable.com', 'throwawaymail.com',
+    'emailtemporanea.com', 'mohmal.com', 'harakirimail.com',
+    // Test/example domains
+    'test.com', 'example.com', 'fake.com', 'dummy.com', 'sample.com',
+    'xxx.com', 'test.org', 'example.org', 'testing.com',
+    // Obviously fake patterns
+    'asdf.com', 'qwerty.com', '123.com', 'abc.com',
   ]
   
-  // Check if domain is blocked
+  // Check if domain is in blocked list
   if (blockedDomains.some(blocked => domain === blocked || domain.endsWith('.' + blocked))) {
     return false
   }
   
-  // List of known legitimate email providers
-  const legitimateDomains = [
-    'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com',
-    'icloud.com', 'protonmail.com', 'zoho.com', 'aol.com', 'mail.com',
-    'gmx.com', 'yandex.com', 'rediffmail.com', 'qq.com', '163.com',
-    'edu', 'ac.in', 'edu.in', 'org', 'gov', 'co.in', 'in'
+  // List of verified legitimate email providers ONLY
+  const trustedDomains = [
+    // Major email providers
+    'gmail.com', 'googlemail.com',
+    'yahoo.com', 'yahoo.co.in', 'yahoo.co.uk', 'ymail.com', 'rocketmail.com',
+    'outlook.com', 'hotmail.com', 'live.com', 'msn.com',
+    'icloud.com', 'me.com', 'mac.com',
+    'protonmail.com', 'proton.me', 'pm.me',
+    'aol.com',
+    'zoho.com', 'zohomail.com',
+    'mail.com',
+    // Indian providers
+    'rediffmail.com', 'rediff.com',
+    // Educational TLDs
+    '.edu', '.ac.in', '.edu.in', '.edu.au', '.ac.uk', '.edu.sg',
+    // Organizational
+    '.gov', '.gov.in', '.mil',
+    // Corporate/Business
+    '.org', '.co.in', '.in', '.com', '.net',
   ]
   
-  // Check if it's a known legitimate domain or subdomain
-  const isLegitimate = legitimateDomains.some(legit => 
-    domain === legit || domain.endsWith('.' + legit)
-  )
+  // Check if domain matches trusted patterns
+  const isTrusted = trustedDomains.some(trusted => {
+    if (trusted.startsWith('.')) {
+      // TLD or suffix match
+      return domain.endsWith(trusted) || domain === trusted.substring(1)
+    }
+    return domain === trusted || domain.endsWith('.' + trusted)
+  })
   
-  // Must have at least one dot in domain (e.g., gmail.com not just com)
-  const hasDot = domain.includes('.')
+  // Domain must have at least one dot (e.g., gmail.com, not just .com)
+  const hasProperStructure = domain.split('.').length >= 2 && domain.split('.').every(part => part.length > 0)
   
-  // Domain must be at least 4 characters (e.g., a.co)
-  const hasMinLength = domain.length >= 4
+  // Domain must be at least 4 characters and not contain suspicious patterns
+  const passesBasicChecks = domain.length >= 4 && !/^\d+\./.test(domain) && !/^test|fake|temp|trash|spam/.test(domain)
   
-  return isLegitimate && hasDot && hasMinLength
+  return isTrusted && hasProperStructure && passesBasicChecks
 }
 
 const registrationSchema = z.object({
@@ -102,21 +135,24 @@ export async function POST(req: Request) {
 
     const data = validation.data
 
-    // Validate leader email domain
-    if (!isValidEmailDomain(data.leader.email)) {
+    // Validate leader email - must be from trusted domain
+    if (!isRealEmail(data.leader.email)) {
       return NextResponse.json({ 
         success: false, 
-        message: "Please use a valid email address from a legitimate email provider (Gmail, Yahoo, Outlook, or educational/organizational email)" 
+        message: "Please use a REAL email address from trusted providers (Gmail, Yahoo, Outlook, educational institutions, etc.). Temporary/disposable emails are not allowed." 
       }, { status: 400 })
     }
 
-    // Validate member emails
-    for (const member of data.members) {
-      if (member.email && member.email.trim() && !isValidEmailDomain(member.email)) {
-        return NextResponse.json({ 
-          success: false, 
-          message: "All team members must use valid email addresses from legitimate email providers" 
-        }, { status: 400 })
+    // Validate member emails - must be from trusted domains
+    for (let i = 0; i < data.members.length; i++) {
+      const member = data.members[i]
+      if (member.email && member.email.trim()) {
+        if (!isRealEmail(member.email)) {
+          return NextResponse.json({ 
+            success: false, 
+            message: `Member ${i + 1}: Please use a REAL email address. Temporary/disposable emails are not allowed.` 
+          }, { status: 400 })
+        }
       }
     }
 
