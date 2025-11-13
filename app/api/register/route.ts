@@ -33,6 +33,46 @@ const sanitize = (str: string | undefined): string => {
   return str.trim().replace(/[<>]/g, "")
 }
 
+// Function to validate if email domain is legitimate
+const isValidEmailDomain = (email: string): boolean => {
+  const domain = email.toLowerCase().split('@')[1]
+  
+  // List of fake/disposable email domains to block
+  const blockedDomains = [
+    'tempmail.com', 'throwaway.email', '10minutemail.com', 'guerrillamail.com',
+    'mailinator.com', 'maildrop.cc', 'temp-mail.org', 'fakeinbox.com',
+    'trashmail.com', 'yopmail.com', 'getnada.com', 'sharklasers.com',
+    'guerrillamailblock.com', 'spam4.me', 'mintemail.com', 'emailondeck.com',
+    'test.com', 'example.com', 'fake.com', 'dummy.com', 'xxx.com', 'sample.com'
+  ]
+  
+  // Check if domain is blocked
+  if (blockedDomains.some(blocked => domain === blocked || domain.endsWith('.' + blocked))) {
+    return false
+  }
+  
+  // List of known legitimate email providers
+  const legitimateDomains = [
+    'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com',
+    'icloud.com', 'protonmail.com', 'zoho.com', 'aol.com', 'mail.com',
+    'gmx.com', 'yandex.com', 'rediffmail.com', 'qq.com', '163.com',
+    'edu', 'ac.in', 'edu.in', 'org', 'gov', 'co.in', 'in'
+  ]
+  
+  // Check if it's a known legitimate domain or subdomain
+  const isLegitimate = legitimateDomains.some(legit => 
+    domain === legit || domain.endsWith('.' + legit)
+  )
+  
+  // Must have at least one dot in domain (e.g., gmail.com not just com)
+  const hasDot = domain.includes('.')
+  
+  // Domain must be at least 4 characters (e.g., a.co)
+  const hasMinLength = domain.length >= 4
+  
+  return isLegitimate && hasDot && hasMinLength
+}
+
 const registrationSchema = z.object({
   teamName: z.string().min(1, "Team name is required"),
   domain: z.enum(["Blockchain", "AIML", "Open Innovation"]),
@@ -61,6 +101,24 @@ export async function POST(req: Request) {
     }
 
     const data = validation.data
+
+    // Validate leader email domain
+    if (!isValidEmailDomain(data.leader.email)) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "Please use a valid email address from a legitimate email provider (Gmail, Yahoo, Outlook, or educational/organizational email)" 
+      }, { status: 400 })
+    }
+
+    // Validate member emails
+    for (const member of data.members) {
+      if (member.email && member.email.trim() && !isValidEmailDomain(member.email)) {
+        return NextResponse.json({ 
+          success: false, 
+          message: "All team members must use valid email addresses from legitimate email providers" 
+        }, { status: 400 })
+      }
+    }
 
     // Sanitize all inputs
     const sanitizedLeader = {
