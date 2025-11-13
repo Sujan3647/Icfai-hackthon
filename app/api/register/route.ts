@@ -126,7 +126,7 @@ const isRealEmail = (email: string) => {
     // Major email providers
     'gmail.com', 'googlemail.com',
     'yahoo.com', 'yahoo.co.in', 'yahoo.co.uk', 'ymail.com', 'rocketmail.com',
-    'outlook.com', 'hotmail.com', 'live.com', 'msn.com',
+    'outlook.com', 'hotmail.com', 'live.com', 'live.in', 'msn.com',
     'icloud.com', 'me.com', 'mac.com',
     'protonmail.com', 'proton.me', 'pm.me',
     'aol.com',
@@ -134,22 +134,21 @@ const isRealEmail = (email: string) => {
     'mail.com',
     // Indian providers
     'rediffmail.com', 'rediff.com',
-    // Educational TLDs
-    '.edu', '.ac.in', '.edu.in', '.edu.au', '.ac.uk', '.edu.sg',
-    // Organizational
-    '.gov', '.gov.in', '.mil',
-    // Corporate/Business
-    '.org', '.co.in', '.in', '.com', '.net',
   ]
   
-  // Check if domain matches trusted patterns
-  const isTrusted = trustedDomains.some(trusted => {
-    if (trusted.startsWith('.')) {
-      // TLD or suffix match
-      return domain.endsWith(trusted) || domain === trusted.substring(1)
-    }
-    return domain === trusted || domain.endsWith('.' + trusted)
-  })
+  // Check if domain is an exact match with trusted providers
+  const isTrusted = trustedDomains.includes(domain)
+  
+  // OR check if it's a valid educational/government domain
+  const isEducational = domain.endsWith('.edu') || domain.endsWith('.ac.in') || 
+                        domain.endsWith('.edu.in') || domain.endsWith('.edu.au') || 
+                        domain.endsWith('.ac.uk') || domain.endsWith('.edu.sg')
+  
+  const isGovernment = domain.endsWith('.gov') || domain.endsWith('.gov.in') || 
+                       domain.endsWith('.mil')
+  
+  // Accept ONLY if it's a trusted provider OR educational OR government
+  const isDomainTrusted = isTrusted || isEducational || isGovernment
   
   // Domain must have at least one dot (e.g., gmail.com, not just .com)
   const hasProperStructure = domain.split('.').length >= 2 && domain.split('.').every(part => part.length > 0)
@@ -157,7 +156,7 @@ const isRealEmail = (email: string) => {
   // Domain must be at least 4 characters and not contain suspicious patterns
   const passesBasicChecks = domain.length >= 4 && !/^\d+\./.test(domain) && !/^test|fake|temp|trash|spam/.test(domain)
   
-  return isTrusted && hasProperStructure && passesBasicChecks
+  return isDomainTrusted && hasProperStructure && passesBasicChecks
 }
 
 const registrationSchema = z.object({
