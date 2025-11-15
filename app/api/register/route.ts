@@ -309,38 +309,68 @@ export async function POST(req: Request) {
         phone: sanitize(m.phone || ""),
       }))
 
-    // Get current count to generate registration ID
-    const { count, error: countError } = await supabase
-      .from('registrations')
-      .select('*', { count: 'exact', head: true })
+    // Generate unique registration ID with retry logic
+    let regId = ""
+    let insertedData = null
+    let maxRetries = 5
     
-    if (countError) {
-      console.error("Supabase count error:", countError)
-      throw new Error(`Database error: ${countError.message}. Make sure you've run the SQL migration in Supabase.`)
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        // Get current count to generate registration ID
+        const { count, error: countError } = await supabase
+          .from('registrations')
+          .select('*', { count: 'exact', head: true })
+        
+        if (countError) {
+          console.error("Supabase count error:", countError)
+          throw new Error(`Database error: ${countError.message}. Make sure you've run the SQL migration in Supabase.`)
+        }
+        
+        // Add random offset to avoid collisions in concurrent requests
+        const randomOffset = Math.floor(Math.random() * 100)
+        const regNum = (count || 0) + 1 + randomOffset
+        regId = `H2H-2025-${String(regNum).padStart(4, "0")}-${Date.now().toString().slice(-4)}`
+
+        // Insert into Supabase
+        const { data, error } = await supabase
+          .from('registrations')
+          .insert({
+            reg_id: regId,
+            team_name: sanitize(data.teamName),
+            domain: data.domain,
+            leader: sanitizedLeader,
+            members: sanitizedMembers,
+            idea_description: sanitize(data.ideaDescription),
+            status: "pending",
+            created_at: new Date().toISOString(),
+          })
+          .select()
+          .single()
+
+        if (error) {
+          // If it's a duplicate key error, retry with a new ID
+          if (error.code === '23505') {
+            console.log(`Duplicate ID ${regId}, retrying... (attempt ${attempt + 1}/${maxRetries})`)
+            await new Promise(resolve => setTimeout(resolve, 100 * (attempt + 1))) // Exponential backoff
+            continue
+          }
+          // For other errors, throw immediately
+          console.error("Supabase insert error:", error)
+          throw new Error(`Database error: ${error.message}`)
+        }
+
+        // Success!
+        insertedData = data
+        break
+      } catch (err) {
+        if (attempt === maxRetries - 1) {
+          throw err
+        }
+      }
     }
-    
-    const regNum = (count || 0) + 1
-    const regId = `H2H-2025-${String(regNum).padStart(4, "0")}`
 
-    // Insert into Supabase
-    const { data: insertedData, error } = await supabase
-      .from('registrations')
-      .insert({
-        reg_id: regId,
-        team_name: sanitize(data.teamName),
-        domain: data.domain,
-        leader: sanitizedLeader,
-        members: sanitizedMembers,
-        idea_description: sanitize(data.ideaDescription),
-        status: "pending",
-        created_at: new Date().toISOString(),
-      })
-      .select()
-      .single()
-
-    if (error) {
-      console.error("Supabase insert error:", error)
-      throw new Error(`Database error: ${error.message}`)
+    if (!insertedData) {
+      throw new Error("Failed to generate unique registration ID after multiple attempts")
     }
 
     return NextResponse.json({ success: true, regId })
