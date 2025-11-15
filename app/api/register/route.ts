@@ -312,27 +312,18 @@ export async function POST(req: Request) {
     // Generate unique registration ID with retry logic
     let regId = ""
     let insertedData = null
-    let maxRetries = 5
+    let maxRetries = 10
     
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
-        // Get current count to generate registration ID
-        const { count, error: countError } = await supabase
-          .from('registrations')
-          .select('*', { count: 'exact', head: true })
-        
-        if (countError) {
-          console.error("Supabase count error:", countError)
-          throw new Error(`Database error: ${countError.message}. Make sure you've run the SQL migration in Supabase.`)
-        }
-        
-        // Add random offset to avoid collisions in concurrent requests
-        const randomOffset = Math.floor(Math.random() * 100)
-        const regNum = (count || 0) + 1 + randomOffset
-        regId = `H2H-2025-${String(regNum).padStart(4, "0")}-${Date.now().toString().slice(-4)}`
+        // Generate a truly unique ID using timestamp and random values
+        const timestamp = Date.now()
+        const random = Math.floor(Math.random() * 10000)
+        const attemptSuffix = attempt > 0 ? `-R${attempt}` : ''
+        regId = `H2H-2025-${timestamp}-${String(random).padStart(4, "0")}${attemptSuffix}`
 
         // Insert into Supabase
-        const { data, error } = await supabase
+        const { data: insertResult, error } = await supabase
           .from('registrations')
           .insert({
             reg_id: regId,
@@ -360,7 +351,7 @@ export async function POST(req: Request) {
         }
 
         // Success!
-        insertedData = data
+        insertedData = insertResult
         break
       } catch (err) {
         if (attempt === maxRetries - 1) {
