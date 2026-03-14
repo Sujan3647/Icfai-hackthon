@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import { motion, AnimatePresence, type MotionProps } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Copy, CheckCircle2, Loader2, User, Users, ChevronRight, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

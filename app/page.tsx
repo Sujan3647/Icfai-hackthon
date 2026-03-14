@@ -266,7 +266,7 @@ export default function Home() {
               className="max-w-4xl mx-auto mb-12 sm:mb-16"
             >
               <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed text-center px-4">
-                <strong className="text-[#0b2b54]">Hack-to-Hire</strong> is <strong>India's first nationwide skill-to-hire hackathon</strong>, designed to bridge the gap between academia and industry through a comprehensive three-stage process:
+                <strong className="text-[#0b2b54]">Hack-to-Hire</strong> is <strong>India&apos;s first nationwide skill-to-hire hackathon</strong>, designed to bridge the gap between academia and industry through a comprehensive three-stage process:
               </p>
             </motion.div>
 
