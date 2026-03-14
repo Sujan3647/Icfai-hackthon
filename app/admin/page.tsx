@@ -57,15 +57,26 @@ export default function AdminPage() {
     }
   }, [])
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (username === "Dipta" && password === "d67s09F#$##!H8WEY8") {
-      setIsAuthenticated(true)
-      sessionStorage.setItem("adminAuth", "true")
-      setError("")
-      fetchRegistrations()
-    } else {
-      setError("Invalid credentials")
+    setError("")
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setIsAuthenticated(true)
+        sessionStorage.setItem("adminAuth", "true")
+        fetchRegistrations()
+      } else {
+        setError(data.message || "Invalid credentials")
+      }
+    } catch (error) {
+      console.error("Login error:", error)
+      setError("Login failed. Please try again.")
     }
   }
 
